@@ -18,7 +18,6 @@ driver.get(home_url)
 email_list = [
         'tyler.duddy@jellyfish.net',
         'drew.forster@jellyfish.net',
-        'nick.pratzer@jellyfish.net',
         'olade.honvo@jellyfish.co.uk'
     ]
 
@@ -32,7 +31,6 @@ group_list = [
 # Program Functions #
 def sign_in():
     email_field = css_select('[type="email"]', driver=driver)
-    #username = getpass.getpass('Username: ')
     username = "tyler.duddy@jellyfish.net"
 
     email_field.send_keys(username)
