@@ -24,8 +24,6 @@ email_list = [
 group_list = [
         'selenium_test_1',
         'selenium_test_2',
-        'selenium_test_3',
-        'selenium_test_4'
     ]
 
 # Program Functions #
