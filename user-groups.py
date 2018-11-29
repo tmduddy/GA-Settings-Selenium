@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
-from utilities import check_continue, css_select, is_url
+from utilities import check_continue, css_select, is_url, is_element, sign_in
 
 # Initialize the driver #
 driver = webdriver.Chrome()
@@ -27,22 +27,6 @@ group_list = [
     ]
 
 # Program Functions #
-def sign_in():
-    email_field = css_select('[type="email"]', driver=driver)
-    username = "tyler.duddy@jellyfish.net"
-
-    email_field.send_keys(username)
-    email_field.send_keys(u'\ue007') # unicode for ENTER key
-    
-    sleep(1) #need to wait for the password field to exist
-    
-    pass_field = css_select('[type="password"]', driver=driver)
-    password = getpass.getpass()
-    pass_field.send_keys(password)
-    pass_field.send_keys(u'\ue007') # unicode for ENTER key
-    
-    check_continue("Is the page resolved? y/n: ", driver=driver)
-
 def create_user_group(group_name, email_list, permission_level):
     user_group_btn_css = 'gap-navigation-slat.um-groups-slat section.gaux-slat-button.gap-navigation-slat div div.gap-navigation-slat-content:nth-child(2) span:nth-child(1)'
     user_group_btn = css_select(user_group_btn_css, driver=driver)
@@ -60,22 +44,16 @@ def create_user_group(group_name, email_list, permission_level):
     group_name_input.send_keys(u'\ue007') # unicode for ENTER key
     
     add_members_btn_css = 'um-group-members-slat'
-    for i in range(10):
-        try:
-            add_members_btn = css_select(add_members_btn_css, driver=driver)
-            break
-        except:
-            sleep(0.5)
+    add_members_btn = is_element(add_members_btn_css, driver=driver)
     add_members_btn.click()
 
-    sleep(0.5)
-
-    add_member_plus = css_select('button[aria-label="Add group members"]', driver=driver)
+    add_member_plus_css = 'button[aria-label="Add group members"]'
+    add_member_plus = is_element(add_member_plus_css, driver=driver)
     add_member_plus.click()
 
-    sleep(0.5)
-
-    email_input = css_select('input[aria-label="Input user email addresses"]', driver=driver)
+    email_input_css = 'input[aria-label="Input user email addresses"]'
+    email_input = is_element(email_input_css, driver=driver)
+    
     for email in email_list:
         email_input.send_keys(email + " ")
         sleep(0.5)
@@ -89,7 +67,7 @@ def create_user_group(group_name, email_list, permission_level):
         sleep(0.5)
 
 def main():
-    sign_in()
+    sign_in(driver)
     for group_name in group_list:
         create_user_group(group_name, email_list,'')
     check_continue(driver=driver)
