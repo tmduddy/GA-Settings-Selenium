@@ -5,7 +5,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from utilities import check_continue, css_select, is_element, is_url, sign_in
+from utilities import *
 
 # Initialize the driver
 driver = webdriver.Chrome()

@@ -39,17 +39,19 @@ def is_element(css, time=1, driver=''):
             sleep(0.5)
 
 def sign_in(driver):
-    email_field = css_select('[type="email"]', driver=driver)
+    email_field = is_element('[type="email"]', driver=driver)
     username = "tyler.duddy@jellyfish.net"
 
     email_field.send_keys(username)
     email_field.send_keys(u'\ue007') # unicode for ENTER key
     
-    sleep(1) #need to wait for the password field to exist
-    
-    pass_field = css_select('[type="password"]', driver=driver)
+    pass_field = is_element('[type="password"]', driver=driver)
     password = getpass.getpass()
+
     pass_field.send_keys(password)
     pass_field.send_keys(u'\ue007') # unicode for ENTER key
     
     check_continue("Is the page resolved? y/n: ", driver=driver)
+
+def list_from_csv(csv):
+    pass
