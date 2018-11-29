@@ -5,7 +5,6 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-
 def css_select(selector, multiple=False, driver=''):
     if multiple:
         return driver.find_elements_by_css_selector(selector)
