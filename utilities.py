@@ -1,3 +1,4 @@
+import csv
 import getpass
 import os
 from time import sleep
@@ -45,13 +46,25 @@ def sign_in(driver):
     email_field.send_keys(username)
     email_field.send_keys(u'\ue007') # unicode for ENTER key
     
-    pass_field = is_element('[type="password"]', driver=driver)
-    password = getpass.getpass()
+    # pass_field = is_element('[type="password"]', driver=driver)
+    # password = getpass.getpass()
 
-    pass_field.send_keys(password)
-    pass_field.send_keys(u'\ue007') # unicode for ENTER key
+    # pass_field.send_keys(password)
+    # pass_field.send_keys(u'\ue007') # unicode for ENTER key
     
     check_continue("Is the page resolved? y/n: ", driver=driver)
 
-def list_from_csv(csv):
-    pass
+def list_from_csv(file_path, col_index):
+    my_list = []
+    with open(file_path) as csv_file:
+        #reader gets assigned the content of the above csv file as value
+        reader = csv.reader(csv_file)
+        header = True
+        for row in reader:
+            #remove the first row or header
+            if header:
+                header = False
+                continue
+            # add the content of the given column to the list
+            my_list.append(row[col_index])
+        return my_list
