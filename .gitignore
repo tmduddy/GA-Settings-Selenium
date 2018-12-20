@@ -27,3 +27,6 @@ venv.bak/
 # mac stuff
 .DS_Store
 .ds_store
+
+# ignore data folder
+data
