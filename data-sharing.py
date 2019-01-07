@@ -16,19 +16,22 @@ URLS = [
     'a118991582w176240649p175124888'
 ]
 
-# PROGRAM FUNCTIONS #
-def block_data_sharing(id_params):
-    url = f'https://analytics.google.com/analytics/web/#/{id_params}/admin/account/settings'
-    driver.get(url)
-    if not is_url(url, driver=driver): return
-    checkboxes = driver.find_elements_by_css_selector('[role="checkbox"]')
+# if running the project non-locally, you'll need to input the full path to the directory here
+# ex. /home/username/dev/selenium-test/
+project_path = ''
 
-    # check to make sure there are checkboxes on the page
-    for i in range(20):
-        if len(checkboxes) != 0:
-            break
-        checkboxes = css_select('[role="checkbox"]', multiple=True, driver=driver)
-        sleep(0.1)
+# PROGRAM FUNCTIONS #
+def block_data_sharing(idparams):
+    sleep(4)
+    print('ID Params: {}'.format(idparams))
+    new_url = "https://analytics.google.com/analytics/web/#/{}/admin/account/settings".format(idparams)
+    driver.get(new_url)
+    sleep(1)
+    if not is_url(new_url, 4, driver=driver): 
+        print("didn't get to settings")
+        return
+
+    checkboxes = is_element('[role="checkbox"]', 3, multiple=True, driver=driver)
 
     # uncheck all data_sharing boxes.
     for box in checkboxes:
@@ -39,9 +42,26 @@ def block_data_sharing(id_params):
             continue
     
     # save and print confirmation
-    save_button = css_select('[type="submit"]', driver=driver)
+    save_button = is_element('[type="submit"]', 2, driver=driver)
     save_button.click()
-    print("Finished blocking data sharing, moving on")
+    print("Finished blocking data sharing, moving on\n")
+
+def url_from_id(id, id_type="view"):
+    print('headed to ID: {}'.format(str(id)))
+    dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
+    dropdown.click()
+    search_box = is_element('input[suite-header-gtm-action="Search Universal Picker"]', 2, driver=driver)
+    #search_box.click()
+    # wrap search typing in sleeps to allow all of the text to type
+    sleep(0.5)
+    search_box.send_keys(str(id))
+    sleep(0.5)
+    result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+    result.click()
+    url = str(driver.current_url).split('/')
+    if "admin" in url:
+        return url[6]
+    else: return url[7]
 
 # MAIN # 
 def main():
@@ -53,13 +73,20 @@ def main():
     if("accounts.google.com/signin/v2/identifier" in current_url):
         sign_in(driver=driver)
 
-    # cycle through provided URLs and execute data_sharing function
-    for id_params in URLS:
-        block_data_sharing(id_params)
+    # get ids from spreadsheet, ditching second row of headers
+    ids = list_from_csv(project_path + 'data/loreal-spain-accounts.csv', 3)[1:]
+    for id in ids:
+        if len(id) <= 4:
+            continue
+        idparams = url_from_id(id)
+        block_data_sharing(idparams)
     
     check_continue('Done, enter "y" to exit: ', driver=driver)     
     driver.quit()
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    finally:
+        driver.quit()

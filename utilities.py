@@ -32,11 +32,13 @@ def is_url(url, time=1, driver=''):
     print(f"could not validate {url} within {time} seconds")
     return False
 
-def is_element(css, time=1, driver=''):
-    for i in range(time*10):
+def is_element(css, time=1, multiple=False, driver=''):
+    for i in range(time*2):
         try:
-            return css_select(css, driver=driver)
+            return css_select(css, multiple, driver=driver)
         except:
+            if i%2 != 0:
+                print('Could not ID element: {} after {} tries'.format(css, str(i+1)))
             sleep(0.5)
 
 def sign_in(driver):
