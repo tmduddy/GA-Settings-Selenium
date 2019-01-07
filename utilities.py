@@ -70,3 +70,20 @@ def list_from_csv(file_path, col_index):
             # add the content of the given column to the list
             my_list.append(row[col_index])
         return my_list
+
+def url_from_id(id, driver=''):
+    print('headed to ID: {}'.format(str(id)))
+    dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
+    dropdown.click()
+    search_box = is_element('input[suite-header-gtm-action="Search Universal Picker"]', 2, driver=driver)
+    #search_box.click()
+    # wrap search typing in sleeps to allow all of the text to type
+    sleep(0.5)
+    search_box.send_keys(str(id))
+    sleep(0.5)
+    result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+    result.click()
+    url = str(driver.current_url).split('/')
+    if "admin" in url:
+        return url[6]
+    else: return url[7]

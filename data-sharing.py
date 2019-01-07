@@ -10,12 +10,6 @@ from utilities import *
 # Initialize the driver
 driver = webdriver.Chrome()
 
-# GLOBALS #
-URLS = [
-    'a118991582w176240649p175113216',
-    'a118991582w176240649p175124888'
-]
-
 # if running the project non-locally, you'll need to input the full path to the directory here
 # ex. /home/username/dev/selenium-test/
 project_path = ''
@@ -46,22 +40,7 @@ def block_data_sharing(idparams):
     save_button.click()
     print("Finished blocking data sharing, moving on\n")
 
-def url_from_id(id, id_type="view"):
-    print('headed to ID: {}'.format(str(id)))
-    dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
-    dropdown.click()
-    search_box = is_element('input[suite-header-gtm-action="Search Universal Picker"]', 2, driver=driver)
-    #search_box.click()
-    # wrap search typing in sleeps to allow all of the text to type
-    sleep(0.5)
-    search_box.send_keys(str(id))
-    sleep(0.5)
-    result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
-    result.click()
-    url = str(driver.current_url).split('/')
-    if "admin" in url:
-        return url[6]
-    else: return url[7]
+
 
 # MAIN # 
 def main():
@@ -74,11 +53,11 @@ def main():
         sign_in(driver=driver)
 
     # get ids from spreadsheet, ditching second row of headers
-    ids = list_from_csv(project_path + 'data/loreal-spain-accounts.csv', 3)[1:]
+    ids = list_from_csv(project_path + 'data/loreal-norway-accounts.csv', 3)[1:]
     for id in ids:
         if len(id) <= 4:
             continue
-        idparams = url_from_id(id)
+        idparams = url_from_id(id, driver=driver)
         block_data_sharing(idparams)
     
     check_continue('Done, enter "y" to exit: ', driver=driver)     
