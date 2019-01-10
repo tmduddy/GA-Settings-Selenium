@@ -8,7 +8,8 @@ from selenium.webdriver.common.keys import Keys
 
 def css_select(selector, multiple=False, driver=''):
     if multiple:
-        return driver.find_elements_by_css_selector(selector)
+        if len(driver.find_elements_by_css_selector(selector)) > 0:
+            return driver.find_elements_by_css_selector(selector)
     return driver.find_element_by_css_selector(selector)
 
 def check_continue(prompt="continue? y/n: ", driver=''):
