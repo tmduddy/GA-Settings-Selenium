@@ -1,15 +1,18 @@
-import csv
-name = []
-default = []
-rules_global = []
-rules_additional = []
-with open('data/loreal-argentina-channels.csv', 'r') as file:
-    r = csv.reader(file)
-    for i, row in enumerate(r):
-        if i>4:
-            name.append(row[1])
-            default.append(row[2])
-            rules_global.append(row[3])
-            rules_additional.append(row[5])
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
-print([name, default, rules_global, rules_additional])
+import re
+
+from utilities import *
+
+# Initialize the driver
+driver = webdriver.Chrome()
+
+driver.get('https://analytics.google.com')
+sign_in(driver)
+
+my_list = list_from_csv('data/loreal-spain-accounts.csv', 3)[1:]
+for name in my_list:
+    print(name)
+    print(url_from_id(name,need_primary_view=True, driver=driver))
+    check_continue(driver=driver)

@@ -72,7 +72,7 @@ def list_from_csv(file_path, col_index):
             my_list.append(row[col_index])
         return my_list
 
-def url_from_id(id, driver=''):
+def url_from_id(id, need_primary_view=False, driver=''):
     print('headed to ID: {}'.format(str(id)))
     dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
     dropdown.click()
@@ -82,8 +82,26 @@ def url_from_id(id, driver=''):
     sleep(0.5)
     search_box.send_keys(str(id))
     sleep(0.5)
-    result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
-    result.click()
+
+    if (need_primary_view):
+        # gets the element where name ends with 'Website' which only really works for Loreal, need a more robust solution for others
+        result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+        result.click()
+        sleep(5)
+        dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
+        dropdown.click()
+        for i in range(8):
+            try:
+                result = driver.find_element_by_xpath('//a[contains(.,"- Website")]')
+                result.click()
+                print('clicked')
+                break
+            except:
+                sleep(0.5)
+    else:    
+        result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+        result.click()
+    
     url = str(driver.current_url).split('/')
     if "admin" in url:
         return url[6]

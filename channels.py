@@ -34,6 +34,7 @@ def read_channel_defs(file_name):
     rules_global = []
     rules_additional = []
 
+    # Read the spreadsheet, skipping the first 4 rows, making 4 lists.
     with open(project_path + 'data/' + file_name, 'r') as file:
         reader = csv.reader(file)
         for i, row in enumerate(reader):
@@ -43,22 +44,15 @@ def read_channel_defs(file_name):
                 rules_global.append(row[3])
                 rules_additional.append(row[5])
 
-    return [name.reverse(), default.reverse(), rules_global.reverse(), rules_additional.reverse()]
+    return [name, default, rules_global, rules_additional]
 
-def main():
-    driver.get('https://analytics.google.com')
-    sign_in(driver)
-
-    id_params = 'a118991582w176153053p175123642'
-
-    delete_all_channels(id_params)
-
-    channel_defs = read_channel_defs('loreal-argentina-channels.csv')
-
+def update_channels(channel_defs):
+    
+    # loop through each definition
     for i in range(len(channel_defs[0])):
         channel = [channel_defs[0][i], channel_defs[1][i], channel_defs[2][i], channel_defs[3][i]]
 
-        # add channel interactions
+        # "add a new channel" interactions
         add_new = is_element('._GAor', time=4, driver=driver)
         add_new.click()
         channel_name = is_element('.ID-ruleName', time=2, driver=driver)
@@ -68,12 +62,13 @@ def main():
         rule_dropdown = is_element('[data-name="ID-conceptPickerMenuButton"]', time=2, driver=driver)
         rule_dropdown.click()
 
+        # if the "Default" field is not blank, make the proper default settings, looking up the name of the channel
         if channel[1] != '':
             system_def = is_element('[class*="builtin_traffic_channel', time=4, driver=driver)
             system_def.click()
             matches_dropdown = is_element('[data-name="ID-enumValueSelector"]', time=2, driver=driver)
             matches_dropdown.click()
-        
+
             defaults = {
                 'Direct': '0',
                 'Organic Search': '1',
@@ -90,6 +85,7 @@ def main():
             matches_selection = is_element('[data-value="{}"]'.format(str(value)), time=2, driver=driver)
             matches_selection.click()
 
+        # if the global definition is blank go to the next channel
         if channel[2] == '':
             done = is_element('.ACTION-finishRuleEdit', time=2, driver=driver)
             done.click()
@@ -99,12 +95,13 @@ def main():
             or_btn = is_element('[class*="ACTION-add-or"]', time=2, driver=driver)
             or_btn.click()
 
+        # choose the first or second drop down depending on number of definitions needed
         if channel[1] == '':
             dropdown_css = '[data-name="ID-conceptPickerMenuButton"]'
         else:
             dropdown_css = 'div.ID-condition-0-1 > div > button'
 
-
+        # apply the global rules
         global_dropdown = is_element(dropdown_css, time=4, driver=driver)            
         global_dropdown.click()
 
@@ -114,6 +111,7 @@ def main():
         match_type = is_element('[data-name="ID-matchTypeSelector"]', time=4, driver=driver)
         match_type.click()
 
+        # choose the proper match type
         if re.match(r".*exactly matches.*", channel[2]):
             selector = is_element('[data-value="include-EQ"]', time=2, driver=driver)
         elif re.match(r".*matches regex.*", channel[2]):
@@ -124,27 +122,31 @@ def main():
         selector.click()
 
         expression_box = is_element('[data-name="ID-expression"]', time=2, driver=driver)
-        
+
         expression_list = channel[2].split(' ')
         expression = ' '.join(expression_list[4:]) if expression_list[0] == 'OR' else ' '.join(expression_list[3:])
         expression_box.send_keys(expression)
-
-
-
-        
-
-
+        sleep(0.25) # ensure that the full pattern is typed
+        # click done and save
         done = is_element('.ACTION-finishRuleEdit', time=2, driver=driver)
         done.click()
+    save = is_element('[value="Save"]', time=2, driver=driver)
+    save.click()
 
-    check_continue(driver=driver)
+def main():
+    driver.get('https://analytics.google.com')
+    sign_in(driver)
 
+    ids = list_from_csv('data/test.csv', 3)[1:]
+    id_params = url_from_id(ids[0], True, driver=driver)
+    delete_all_channels(id_params)
 
+    channel_defs = read_channel_defs('loreal-argentina-channels.csv')
 
-
+    update_channels(channel_defs)
 
 if __name__ == "__main__":
     try:
         main()
     finally:
-        pass#driver.quit()
+        check_continue(driver=driver)
