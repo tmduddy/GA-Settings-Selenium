@@ -14,17 +14,24 @@ project_path = ''
 
 def delete_all_channels(id_params):
     # navigate to default channel grouping
+    sleep(1)
     driver.get('https://analytics.google.com/analytics/web/#/{}/admin/channel-grouping/m-content-channelGroupingTable.rowShow=10&m-content-channelGroupingTable.rowStart=0&m-content-channelGroupingTable.sortColumnId=aggregated&m-content-channelGroupingTable.sortDescending=true&m-content.mode=EDIT&m-content.groupId=0&m-content.groupType=CHANNEL'.format(id_params))
     
     # wait for the iframe to load and then switch focus to it
     sleep(2)
-    iframe = is_element('#galaxyIframe', time=4, driver=driver)
+    iframe = is_element('#galaxyIframe', time=6, driver=driver)
     driver.switch_to.frame(iframe)
 
-    # loop through all available delete buttons and confirm
-    delete = is_element('.ACTION-deleteRule', time=4, multiple=True, driver=driver)
+    # loop through all available delete buttons and confirm (validate that delete button would receive the click)
+    delete = is_element('.ACTION-deleteRule', time=6, multiple=True, driver=driver)
     for element in delete:
-        element.click()
+        for i in range(8):
+            try:
+                element.click()
+                break
+            except:
+                print(f"couldn't click delete in {i} tries")
+                sleep(0.5)
         confirm = is_element('input[value="Delete Rule"]', time=4, driver=driver)
         confirm.click()
 
@@ -132,21 +139,36 @@ def update_channels(channel_defs):
         done.click()
     save = is_element('[value="Save"]', time=2, driver=driver)
     save.click()
+    close_button = is_element('[class*="ID-closeButton"]', 3, False, driver=driver)
+    try:
+        close_button.click()
+    except:
+        print('no close button to click')
+    driver.switch_to.default_content()
 
 def main():
-    driver.get('https://analytics.google.com')
-    sign_in(driver)
+    ids = list_from_csv('data/loreal-argentina-accounts.csv', 4)[1:]
+    for id in ids:
+        id_params = url_from_id(id, False, driver=driver)
+        delete_all_channels(id_params)
 
-    ids = list_from_csv('data/test.csv', 3)[1:]
-    id_params = url_from_id(ids[0], True, driver=driver)
-    delete_all_channels(id_params)
+        channel_defs = read_channel_defs('loreal-argentina-channels.csv')
 
-    channel_defs = read_channel_defs('loreal-argentina-channels.csv')
+        update_channels(channel_defs)
 
-    update_channels(channel_defs)
+    print('done all channels')
+    check_continue(driver=driver)
 
 if __name__ == "__main__":
-    try:
-        main()
-    finally:
-        check_continue(driver=driver)
+    driver.get('https://analytics.google.com')
+    sign_in(driver)
+    executor_url = driver.command_executor._url
+    session_id = driver.session_id
+    print(f"sess_id = {session_id}")
+    print(f"exe_url = {executor_url}")
+    while(True):
+        try:
+            main()
+        except Exception as e:
+            print(e)
+            check_continue("TRY AGAIN? y/n ",driver=driver)

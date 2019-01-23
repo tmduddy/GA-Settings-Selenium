@@ -12,7 +12,7 @@ driver = webdriver.Chrome()
 
 # if running the project non-locally, you'll need to input the full path to the directory here
 # ex. /home/username/dev/selenium-test/
-project_path = ''
+project_path = 'data/'
 
 # PROGRAM FUNCTIONS #
 def block_data_sharing(idparams):
@@ -52,17 +52,20 @@ def main():
     if("accounts.google.com/signin/v2/identifier" in current_url):
         sign_in(driver=driver)
 
-    # get ids from spreadsheet, ditching second row of headers
-    ids = list_from_csv(project_path + 'data/loreal-norway-accounts.csv', 3)[1:]
-    for id in ids:
-        if len(id) <= 4:
-            continue
-        idparams = url_from_id(id, driver=driver)
-        block_data_sharing(idparams)
-    
-    check_continue('Done, enter "y" to exit: ', driver=driver)     
-    driver.quit()
-
+    for file_name in get_file_names('accounts'):
+        # get ids from spreadsheet, ditching second row of headers
+        print(f'***{file_name}***')
+        ids = list_from_csv(project_path + file_name, 5)[1:]
+        for id in ids:
+            if len(id) <= 4:
+                continue
+            try:
+                idparams = url_from_id(id, driver=driver)
+                block_data_sharing(idparams) 
+            except Exception as e:
+                print(f'COULD NOT VALIDATE {id}\n')
+                print(e)
+                continue
 
 if __name__ == '__main__':
     try:

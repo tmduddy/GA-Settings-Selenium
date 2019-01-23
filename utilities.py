@@ -85,7 +85,7 @@ def url_from_id(id, need_primary_view=False, driver=''):
 
     if (need_primary_view):
         # gets the element where name ends with 'Website' which only really works for Loreal, need a more robust solution for others
-        result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+        result = is_element('a.suite-detailed-entity-list-row', 7, driver=driver)
         result.click()
         sleep(5)
         dropdown = is_element('button[aria-label="Open the universal picker."]', driver=driver)
@@ -99,10 +99,26 @@ def url_from_id(id, need_primary_view=False, driver=''):
             except:
                 sleep(0.5)
     else:    
-        result = is_element('a.suite-detailed-entity-list-row', 4, driver=driver)
+        result = is_element('a.suite-detailed-entity-list-row', 7, driver=driver)
         result.click()
     
     url = str(driver.current_url).split('/')
     if "admin" in url:
         return url[6]
     else: return url[7]
+
+def get_file_names(file_type="accounts"):
+    markets = [
+        'denmark',
+        'finland',
+        'hk',
+        'netherlands',
+        'norway',
+        'russia',
+        'spain',
+        'sweden',
+        'thailand',
+        'turkey',
+        'uae'
+    ]
+    return [f"loreal-{market}-{file_type}.csv" for market in markets]
