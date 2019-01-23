@@ -14,7 +14,7 @@ project_path = ''
 
 def delete_all_channels(id_params):
     # navigate to default channel grouping
-    sleep(1)
+    sleep(3)
     driver.get('https://analytics.google.com/analytics/web/#/{}/admin/channel-grouping/m-content-channelGroupingTable.rowShow=10&m-content-channelGroupingTable.rowStart=0&m-content-channelGroupingTable.sortColumnId=aggregated&m-content-channelGroupingTable.sortDescending=true&m-content.mode=EDIT&m-content.groupId=0&m-content.groupType=CHANNEL'.format(id_params))
     
     # wait for the iframe to load and then switch focus to it
@@ -147,12 +147,12 @@ def update_channels(channel_defs):
     driver.switch_to.default_content()
 
 def main():
-    ids = list_from_csv('data/loreal-argentina-accounts.csv', 4)[1:]
+    ids = list_from_csv('data/loreal-test-accounts.csv', 5)[1:]
     for id in ids:
         id_params = url_from_id(id, False, driver=driver)
         delete_all_channels(id_params)
 
-        channel_defs = read_channel_defs('loreal-argentina-channels.csv')
+        channel_defs = read_channel_defs('loreal-denmark-channels.csv')
 
         update_channels(channel_defs)
 
